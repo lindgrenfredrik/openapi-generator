@@ -92,7 +92,7 @@ public abstract class AbstractGenerator implements TemplatingGenerator {
             }
             return outputFile;
         } else {
-            LOGGER.info("writing file " + filename);
+            LOGGER.info("writing file raw " + filename);
             return writeToFileRaw(filename, contents);
         }
     }

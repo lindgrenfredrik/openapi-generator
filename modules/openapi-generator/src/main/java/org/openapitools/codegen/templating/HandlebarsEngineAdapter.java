@@ -79,6 +79,7 @@ public class HandlebarsEngineAdapter extends AbstractTemplatingEngineAdapter {
         StringHelpers.register(handlebars);
         handlebars.registerHelpers(ConditionalHelpers.class);
         handlebars.registerHelpers(org.openapitools.codegen.templating.handlebars.StringHelpers.class);
+        handlebars.registerHelpers(org.openapitools.codegen.templating.handlebars.FilterHelper.class);
         Template tmpl = handlebars.compile(templateFile);
         return tmpl.apply(context);
     }

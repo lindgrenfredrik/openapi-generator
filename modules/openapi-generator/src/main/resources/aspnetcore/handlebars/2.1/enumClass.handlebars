@@ -1,0 +1,19 @@
+
+        /// <summary>
+        /// {{#not description}}Gets or Sets {{{name}}}{{/not}}{{#description}}{{{description}}}{{/description}}
+        /// </summary>
+        {{#description}}
+        /// <value>{{{description}}}</value>
+        {{/description}}
+        {{#allowableValues}}{{#enumVars}}{{#@first}}{{#isString}}[TypeConverter(typeof(CustomEnumConverter<{{#datatypeWithEnum}}{{.}}{{/datatypeWithEnum}}{{#not datatypeWithEnum}}{{classname}}{{/not}}>))]
+        [JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]{{/isString}}{{/@first}}{{/enumVars}}{{/allowableValues}}
+        public enum {{#datatypeWithEnum}}{{.}}{{/datatypeWithEnum}}{{#not datatypeWithEnum}}{{classname}}{{/not}}
+        {
+            {{#allowableValues}}{{#each enumVars}}
+            /// <summary>
+            /// Enum {{name}} for {{{value}}}
+            /// </summary>
+            {{#isString}}[EnumMember(Value = "{{{value}}}")]{{/isString}}
+            {{name}}{{#not isString}} = {{{value}}}{{/not}}{{#isString}} = {{@index_1}}{{/isString}}{{#not @last}},
+            {{/not}}{{/each}}{{/allowableValues}}
+        }
