@@ -30,9 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.UUID.randomUUID;
 
@@ -58,6 +56,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     public static final String USE_NEWTONSOFT = "useNewtonsoft";
     public static final String USE_DEFAULT_ROUTING = "useDefaultRouting";
     public static final String NEWTONSOFT_VERSION = "newtonsoftVersion";
+    public static final String GENERATE_CONTROLLER_INTERFACE = "generateControllerInterface";
 
     private String packageGuid = "{" + randomUUID().toString().toUpperCase(Locale.ROOT) + "}";
 
@@ -84,6 +83,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     private boolean useNewtonsoft = true;
     private boolean useDefaultRouting = true;
     private String newtonsoftVersion = "3.0.0-preview5-19227-01";
+    private boolean generateControllerInterface = false;
 
     public AspNetCoreServerCodegen() {
         super();
@@ -287,6 +287,19 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         modelClassModifier.setOptValue(modelClassModifier.getDefault());
         addOption(modelClassModifier.getOpt(), modelClassModifier.getDescription(), modelClassModifier.getOptValue());
 
+        addSwitch(GENERATE_CONTROLLER_INTERFACE,
+                "Generate interface class for the Controllers",
+                generateControllerInterface);
+    }
+
+    @Override
+    public String apiFilename(String templateName, String tag) {
+        boolean isInterface = templateName.equalsIgnoreCase("icontroller.mustache");
+        String suffix = apiTemplateFiles().get(templateName);
+        if (isInterface) {
+            return apiFileFolder() + "/I" + toApiFilename(tag) + suffix;
+        }
+        return apiFileFolder() + '/' + toApiFilename(tag) + suffix;
     }
 
     @Override
@@ -335,6 +348,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         setModelClassModifier();
         setUseSwashbuckle();
         setOperationIsAsync();
+        setGenerateControllerInterface();
 
         // CHeck for class modifier if not present set the default value.
         additionalProperties.put(PROJECT_SDK, projectSdk);
@@ -359,6 +373,10 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         setIsFramework();
         setUseNewtonsoft();
         setUseEndpointRouting();
+
+        if (generateControllerInterface) {
+            apiTemplateFiles.put("icontroller.mustache", ".cs");
+        }
 
         supportingFiles.add(new SupportingFile("build.sh.mustache", "", "build.sh"));
         supportingFiles.add(new SupportingFile("build.bat.mustache", "", "build.bat"));
@@ -528,6 +546,12 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
             projectSdk = SDK_WEB;
         }
         additionalProperties.put(IS_LIBRARY, isLibrary);
+    }
+
+    private void setGenerateControllerInterface() {
+        if (additionalProperties.containsKey(GENERATE_CONTROLLER_INTERFACE)) {
+            generateControllerInterface = convertPropertyToBooleanAndWriteBack(GENERATE_CONTROLLER_INTERFACE);
+        }
     }
 
     private void setAspnetCoreVersion(String packageFolder) {
