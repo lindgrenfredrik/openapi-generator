@@ -57,6 +57,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     public static final String USE_DEFAULT_ROUTING = "useDefaultRouting";
     public static final String NEWTONSOFT_VERSION = "newtonsoftVersion";
     public static final String GENERATE_CONTROLLER_INTERFACE = "generateControllerInterface";
+    public static final String USE_IFORMFILE_INSTEAD_OF_STREAM = "useIFormFileInsteadOfStream";
 
     private String packageGuid = "{" + randomUUID().toString().toUpperCase(Locale.ROOT) + "}";
 
@@ -84,6 +85,7 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     private boolean useDefaultRouting = true;
     private String newtonsoftVersion = "3.0.0-preview5-19227-01";
     private boolean generateControllerInterface = false;
+    private boolean useIFormFileInsteadOfStream = false;
 
     public AspNetCoreServerCodegen() {
         super();
@@ -290,6 +292,10 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         addSwitch(GENERATE_CONTROLLER_INTERFACE,
                 "Generate interface class for the Controllers",
                 generateControllerInterface);
+
+        addSwitch(USE_IFORMFILE_INSTEAD_OF_STREAM,
+                "Change so that File inputs are generated as IFormFile data types instead of Stream",
+                useIFormFileInsteadOfStream);
     }
 
     @Override
@@ -349,7 +355,11 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
         setUseSwashbuckle();
         setOperationIsAsync();
         setGenerateControllerInterface();
+        setIFormFileInsteadOfStream();
 
+        if (useIFormFileInsteadOfStream) {
+            typeMapping.put("file", "Microsoft.AspNetCore.Http.IFormFile");
+        }
         // CHeck for class modifier if not present set the default value.
         additionalProperties.put(PROJECT_SDK, projectSdk);
 
@@ -551,6 +561,12 @@ public class AspNetCoreServerCodegen extends AbstractCSharpCodegen {
     private void setGenerateControllerInterface() {
         if (additionalProperties.containsKey(GENERATE_CONTROLLER_INTERFACE)) {
             generateControllerInterface = convertPropertyToBooleanAndWriteBack(GENERATE_CONTROLLER_INTERFACE);
+        }
+    }
+
+    private void setIFormFileInsteadOfStream() {
+        if (additionalProperties.containsKey(USE_IFORMFILE_INSTEAD_OF_STREAM)) {
+            useIFormFileInsteadOfStream = convertPropertyToBooleanAndWriteBack(USE_IFORMFILE_INSTEAD_OF_STREAM);
         }
     }
 
