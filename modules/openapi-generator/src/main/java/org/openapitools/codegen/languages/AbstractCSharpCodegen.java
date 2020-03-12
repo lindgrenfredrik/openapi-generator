@@ -74,6 +74,7 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
 
     protected Set<String> collectionTypes;
     protected Set<String> mapTypes;
+    protected Map<Character, String> regexModifiers;
 
     // true if support nullable type
     protected boolean supportNullable = Boolean.FALSE;
@@ -205,6 +206,11 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
         valueTypes = new HashSet<String>(
                 Arrays.asList("decimal", "bool", "int", "float", "long", "double")
         );
+        regexModifiers = new HashMap<Character, String>();
+        regexModifiers.put('i', "IgnoreCase");
+        regexModifiers.put('m', "Multiline");
+        regexModifiers.put('s', "Singleline");
+        regexModifiers.put('x', "IgnorePatternWhitespace");
     }
 
     public void setReturnICollection(boolean returnICollection) {
@@ -384,8 +390,51 @@ public abstract class AbstractCSharpCodegen extends DefaultCodegen implements Co
     }
 
     @Override
+    public void postProcessParameter(CodegenParameter parameter) {
+        postProcessPattern(parameter.pattern, parameter.vendorExtensions);
+        super.postProcessParameter(parameter);
+    }
+
+    @Override
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
+        postProcessPattern(property.pattern, property.vendorExtensions);
         super.postProcessModelProperty(model, property);
+    }
+
+    /*
+     * The pattern spec follows the Perl convention and style of modifiers. .NET
+     * does not support this syntax directly so we need to convert the pattern to a .NET compatible
+     * format and apply modifiers in a compatible way.
+     * See https://msdn.microsoft.com/en-us/library/yd1hzczs(v=vs.110).aspx for .NET options.
+     */
+    public void postProcessPattern(String pattern, Map<String, Object> vendorExtensions) {
+        if (pattern != null) {
+            int i = pattern.lastIndexOf('/');
+
+            //Must follow Perl /pattern/modifiers convention
+            if (pattern.charAt(0) != '/' || i < 2) {
+                throw new IllegalArgumentException("Pattern must follow the Perl "
+                        + "/pattern/modifiers convention. " + pattern + " is not valid.");
+            }
+
+            String regex = pattern.substring(1, i).replace("'", "\'");
+            List<String> modifiers = new ArrayList<String>();
+
+            // perl requires an explicit modifier to be culture specific and .NET is the reverse.
+            modifiers.add("CultureInvariant");
+
+            for (char c : pattern.substring(i).toCharArray()) {
+                if (regexModifiers.containsKey(c)) {
+                    String modifier = regexModifiers.get(c);
+                    modifiers.add(modifier);
+                } else if (c == 'l') {
+                    modifiers.remove("CultureInvariant");
+                }
+            }
+
+            vendorExtensions.put("x-regex", regex);
+            vendorExtensions.put("x-modifiers", modifiers);
+        }
     }
 
     @Override

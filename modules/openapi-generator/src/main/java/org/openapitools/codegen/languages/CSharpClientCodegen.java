@@ -65,7 +65,6 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
     protected boolean generatePropertyChanged = Boolean.FALSE;
 
     protected boolean validatable = Boolean.TRUE;
-    protected Map<Character, String> regexModifiers;
     protected final Map<String, String> frameworks;
 
     // By default, generated code is considered public
@@ -237,12 +236,6 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
         addSwitch(CodegenConstants.CASE_INSENSITIVE_RESPONSE_HEADERS,
                 CodegenConstants.CASE_INSENSITIVE_RESPONSE_HEADERS_DESC,
                 this.caseInsensitiveResponseHeaders);
-
-        regexModifiers = new HashMap<Character, String>();
-        regexModifiers.put('i', "IgnoreCase");
-        regexModifiers.put('m', "Multiline");
-        regexModifiers.put('s', "Singleline");
-        regexModifiers.put('x', "IgnorePatternWhitespace");
     }
 
     @Override
@@ -648,14 +641,12 @@ public class CSharpClientCodegen extends AbstractCSharpCodegen {
 
     @Override
     public void postProcessParameter(CodegenParameter parameter) {
-        postProcessPattern(parameter.pattern, parameter.vendorExtensions);
         postProcessEmitDefaultValue(parameter.vendorExtensions);
         super.postProcessParameter(parameter);
     }
 
     @Override
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
-        postProcessPattern(property.pattern, property.vendorExtensions);
         postProcessEmitDefaultValue(property.vendorExtensions);
         super.postProcessModelProperty(model, property);
     }
