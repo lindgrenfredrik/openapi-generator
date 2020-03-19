@@ -1,0 +1,33 @@
+{{>partial_header}}
+using System;
+using System.Collections.Generic;
+{{#operationResultTask}}
+using System.Threading.Tasks;
+{{/operationResultTask}}
+using Microsoft.AspNetCore.Mvc;
+{{^isLibrary}}
+using Newtonsoft.Json;
+{{/isLibrary}}
+using System.ComponentModel.DataAnnotations;
+using {{packageName}}.Attributes;
+using {{modelPackage}};
+
+namespace {{apiPackage}}
+{ {{#operations}}
+    /// <summary>
+    /// {{description}}
+    /// </summary>{{#description}}
+    [Description("{{description}}")]{{/description}}
+    interface I{{classname}}Controller
+    { {{#operation}}
+        /// <summary>
+        /// {{#summary}}{{summary}}{{/summary}}
+        /// </summary>{{#notes}}
+        /// <remarks>{{notes}}</remarks>{{/notes}}{{#allParams}}
+        /// <param name="{{paramName}}">{{description}}</param>{{/allParams}}{{#responses}}
+        /// <response code="{{code}}">{{message}}</response>{{/responses}}
+        {{#operationResultTask}}{{#operationIsAsync}}async {{/operationIsAsync}}Task<{{/operationResultTask}}IActionResult{{#operationResultTask}}>{{/operationResultTask}} {{operationId}}({{#allParams}}{{>pathParam}}{{>queryParam}}{{>bodyParam}}{{>formParam}}{{>headerParam}}{{#hasMore}}{{^isCookieParam}}, {{/isCookieParam}}{{/hasMore}}{{/allParams}});
+        {{/operation}}
+    }
+{{/operations}}
+}

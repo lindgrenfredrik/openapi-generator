@@ -24,7 +24,7 @@ namespace {{apiPackage}}
     /// </summary>{{#description}}
     [Description("{{description}}")]{{/description}}
     [ApiController]
-    public {{#classModifier}}{{classModifier}} {{/classModifier}}class {{classname}}Controller : ControllerBase
+    public {{#classModifier}}{{classModifier}} {{/classModifier}}class {{classname}}Controller : ControllerBase{{#generateControllerInterface}}, I{{classname}}Controller{{/generateControllerInterface}}
     { {{#operation}}
         /// <summary>
         /// {{#summary}}{{summary}}{{/summary}}
