@@ -12,6 +12,7 @@ sidebar_label: aspnetcore
 |enumNameSuffix|Suffix that will be appended to all enum names.| |Enum|
 |enumValueSuffix|Suffix that will be appended to all enum values.| |Enum|
 |generateBody|Generates method body.| |true|
+|generateControllerInterface|Generate interface class for the Controllers| |false|
 |isLibrary|Is the build a library| |false|
 |licenseName|The name of the license| |NoLicense|
 |licenseUrl|The URL of the license| |http://localhost|
@@ -36,7 +37,6 @@ sidebar_label: aspnetcore
 |useFrameworkReference|Use frameworkReference for ASP.NET Core 3.0+ and  PackageReference  ASP.NET Core 2.2 or earlier.| |false|
 |useNewtonsoft|Uses the Newtonsoft JSON library.| |true|
 |useSwashbuckle|Uses the Swashbuckle.AspNetCore NuGet package for documentation.| |true|
-|generateControllerInterface|Generates Interface Class for the Controllers| true | false |
 
 ## IMPORT MAPPING
 
